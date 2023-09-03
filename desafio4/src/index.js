@@ -6,11 +6,12 @@ import path from 'path';
 import multer from 'multer';
 import { engine } from 'express-handlebars';
 import { Server } from 'socket.io';
-import { Socket } from "dgram";
-import { SocketAddress } from "net";
+import ProductManager from "./routes/ProductManager.js"
 
 const PORT = 8080
 const app = express()
+
+const productManager = new ProductManager()
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -29,20 +30,23 @@ const serverExpress = app.listen(PORT, () => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/static', express.static(path.join(__dirname, '/public')))
+app.use('/realtimeproducts', express.static(path.join(__dirname, '/public')))
 app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
 app.set('views', path.resolve(__dirname, './views'))
+
 //console.log(path.resolve(__dirname, './views'))
 const upload = multer({ storage: storage })
 
 //Server Socket.io
 const io = new Server(serverExpress)
-const mensajes = []
+//const mensajes = []
 
-io.on('connection', (socket) => {
+
+io.on('connection', async (socket) => {
     console.log("Servidor Socket.io conectado")
-    socket.on('mensajeConexion', (user) => {
-        //console.log(info)
+    socket.on('mensajeConexion', (info) => {
+        console.log(info)
         if (user.rol === "Admin") {
             socket.emit('credencialesConexion', "Usuario valido")
         } else {
@@ -55,40 +59,42 @@ io.on('connection', (socket) => {
         mensajes.push(infoMensaje)
         socket.emit('mensajes', mensajes)
     })
+
+    socket.on('addProduct', async (newProduct) => {
+        await productManager.addProduct(newProduct)
+        const products = await productManager.getProducts()
+        socket.emit('dataProducts', products)
+    })
+
+    socket.on('realTimeProducts', async () => {
+        const products = await productManager.getProducts()
+        socket.emit('dataProducts', products)
+    })
+
+    socket.on('deleteProductCode', async (code) => {
+        await productManager.deleteProductCode(code)
+        const products = await productManager.getProducts()
+        socket.emit('dataProducts', products)
+    })
 })
 
 //Routes
 app.use('/api/products', prodsRouter)
 app.use('/api/carts', cartsRouter)
 
-/*
-app.get('/static', (req,res) => {
-    const user = {
-        nombre: "Julia",
-        cargo: "Tutor"
-    }
-    const cursos = [
-        {numCurso: 123, dia: "S", horario: "Mañana" },
-        {numCurso: 456, dia: "MyJ", horario: "Tarde" },
-        {numCurso: 789, dia: "LyM", horario: "Noche" }
-    ]
-    res.render('home', {
-        user: user,
+app.get('/static', (req, res) => {
+    res.render('index', {
         css: "style.css",
-      //css: "products.css",
-      //title: "Productos"
-        title: "Home",
-        esTutor: user.cargo === "Tutor",
-        cursos: cursos
+        title: "Productos",
+        js: "index.js"
     })
 })
-*/
 
-app.get('/static', (req, res) => {
-    res.render('chat', {
-        css: "style.css",
-        title: "Chat"
-
+app.get('/realtimeproducts', (req, res) => {
+    res.render('realTimeProducts', {
+        css: "products.css",
+        title: "Administrar productos",
+        js: "realTimeProducts.js"
     })
 })
 

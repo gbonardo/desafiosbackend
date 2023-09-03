@@ -2,17 +2,50 @@ import { promises as fs } from 'fs'
 
 const pathData = 'src/data/products.json'
 
+class Product {
+    constructor(id, title, description, price, thumbnail, code, stock) {
+        //this.id = Product.incrementarId()
+        this.id = id
+        this.title = title
+        this.description = description
+        this.price = price
+        this.thumbnail = thumbnail
+        this.code = code
+        this.stock = stock
+    }
+    //static incrementarId() {
+      //  if (this.idIncrementar) {
+       //     this.idIncrementar++
+       /// } else {
+         //   this.idIncrementar = 1
+       // }
+        //return this.idIncrementar
+    //}
+}
+
 class ProductManager {
     constructor() {
     }
     async addProduct(product) {
+        const { title, description, price, thumbnail, code, stock } = product
         const products = JSON.parse(await fs.readFile(pathData, 'utf-8'))
+        const ultimo = products[products.length-1]
+        console.log(ultimo)
+        let incrementId = 0
+        if(ultimo === undefined){
+            incrementId = incrementId + 1
+        } else {
+            incrementId = ultimo.id + 1  
+        }
+        console.log(incrementId)
         const prod = products.find(prod => prod.id === product.id)
         if (prod) {
             console.log("El producto existe.")
         } else {
-            products.push(product)
+            const newProduct = new Product (incrementId, title, description, price, thumbnail, code, stock)
+            products.push(newProduct)
             await fs.writeFile(pathData, JSON.stringify(products))
+            console.log("Producto agregado.")
         }
     }
     async getProducts() {
@@ -57,30 +90,23 @@ class ProductManager {
         const prod = products.find(prod => prod.id === id)
         if(prod){
             await fs.writeFile(pathData, JSON.stringify(products.filter(prod => prod.id != id)))
+            console.log("Producto eliminado.")
+        } else {
+            console.log("Producto no encontrado.")
+        }
+    }
+    async deleteProductCode(code) {
+        const products = JSON.parse(await fs.readFile(pathData, 'utf-8'))
+        const prod = products.find(prod => prod.code === code)
+        if(prod){
+            await fs.writeFile(pathData, JSON.stringify(products.filter(prod => prod.code != code)))
+            console.log("Producto eliminado.")
         } else {
             console.log("Producto no encontrado.")
         }
     }
 }
-class Product {
-    constructor(title, description, price, thumbnail, code, stock) {
-        this.id = Product.incrementarId()
-        this.title = title
-        this.description = description
-        this.price = price
-        this.thumbnail = thumbnail
-        this.code = code
-        this.stock = stock
-    }
-    static incrementarId() {
-        if (this.idIncrementar) {
-            this.idIncrementar++
-        } else {
-            this.idIncrementar = 1
-        }
-        return this.idIncrementar
-    }
-}
+
 
 export default ProductManager;
 
