@@ -46,3 +46,5 @@ formDelete.addEventListener('submit', (e) =>{
     socket.emit('realTimeProducts')
     e.target.reset()
 })
+
+

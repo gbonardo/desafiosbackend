@@ -1,10 +1,20 @@
+
 const socket = io()
 const form = document.getElementById('idForm')
+
+socket.emit('realTimeProducts')
+
+socket.on('welcome', (welcomeUser) => {
+    if (welcomeUser != null && undefined) {
+        document.getElementById("containerWelcome").innerHTML = `Bienvenido ${welcomeUser}`
+        } else {
+    }
+})
 
 socket.on('dataProducts', (products) => {
     const tbody = document.querySelector("#tableProducts tbody")
     let table = ''
-    if(products){
+    if (products) {
         products.forEach(product => {
             table += `
             <tr>
@@ -24,4 +34,3 @@ socket.on('dataProducts', (products) => {
     tbody.innerHTML = table
 })
 
-socket.emit('realTimeProducts')

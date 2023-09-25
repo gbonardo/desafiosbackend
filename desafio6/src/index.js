@@ -2,7 +2,7 @@ import 'dotenv/config'
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
+import session, { Cookie } from 'express-session';
 import MongoStore from 'connect-mongo';
 //import multer from 'multer';
 import { engine } from 'express-handlebars';
@@ -18,7 +18,6 @@ import { messageModel } from './dao/models/messages.models.js';
 import { productModel } from './dao/models/products.models.js';
 import { userModel } from './dao/models/users.models.js';
 
-
 const app = express()
 const PORT = 8080
 
@@ -26,15 +25,6 @@ const PORT = 8080
 mongoose.connect(process.env.MONGODB_URL)
     .then(() => console.log('BDD conectada'))
     .catch(() => console.log('Error en conexion a BDD'))
-
-/*
-const auth = (req, res, next) => {
-    if (req.session.email == "admin@admin.com" && req.session.password === "1234") {
-        return next()
-    }
-    res.send("No tenes acceso a esta ruta.")
-}
-*/
 
 //Middleware    
 app.use(express.json())
@@ -62,6 +52,7 @@ app.use('/realtimeproducts', express.static(path.join(__dirname, '/public')))
 app.use('/chat', express.static(path.join(__dirname, '/public')))
 app.use('/login', express.static(path.join(__dirname, '/public')))
 app.use('/registrate', express.static(path.join(__dirname, '/public')))
+app.use('/logout', express.static(path.join(__dirname, '/public')))
 
 //Routes
 app.use('/api/users', userRouter)
@@ -69,40 +60,6 @@ app.use('/api/products', productRouter)
 app.use('/api/carts', cartRouter)
 app.use('/api/messages', messageRouter)
 app.use('/api/sessions', sessionRouter)
-/* 
-app.get('/setCookie', (req, res) => {
-    res.cookie('CookieCookie', 'Esto es una cookie', { maxAge: 90000, signed: true }).send('Cookie generada')
-})
-app.get('/getCookie', (req, res) => {
-    res.send(req.cookies)
-})
-app.get('/session', (req, res) => {
-    if (req.session.counter) {
-        req.session.counter++;
-        res.send(`Se ha visitado el sitio ${req.session.counter} veces.`)
-    } else {
-        req.session.counter = 1;
-        res.send('¡Bienvenido!')
-    }
-})
-app.get('/login', (req, res) => {
-    const { email, password } = req.body
-
-    req.session.email = email
-    req.session.password = password
-    console.log(req.session.email)
-    console.log(req.session.password)
-
-    res.send('Usuario logueado')
-})
-app.get('/admin', auth, (req, res) => {
-    res.send('Sos admin')
-})
-*/
-
-//Routes
-//app.use('/api/products', prodsRouter)
-//app.use('/api/carts', cartsRouter)
 
 const serverExpress = app.listen(PORT, () => {
     console.log(`Server on port ${PORT}`)
@@ -137,8 +94,6 @@ io.on('connection', async (socket) => {
     socket.on('addProduct', async (newProduct) => {
         const { title, description, price, stock, category, code, thumbnail } = newProduct
         await productModel.create({ title, description, price, stock, category, code, thumbnail })
-        //await productManager.addProduct(newProduct)
-        //const products = await productManager.getProducts()
         const products = await productModel.find();
         socket.emit('dataProducts', products)
     })
@@ -169,15 +124,33 @@ io.on('connection', async (socket) => {
             socket.emit('error', errorUser)
         }
     })
-    
-})
+    socket.on('login', async (userLogin) => {
+        const { email, password} = userLogin
+        const user = await userModel.findOne({email: email})
+        if(user){
+            if (user.password == password) {
+                session.login = true
+                const loginCorrect = true
+                const welcomeUser = user.first_name +" "+ user.last_name + ". Rol: " + user.rol
+                console.log(welcomeUser)
+                socket.emit('welcome', welcomeUser )
+                socket.emit('loginStatus', loginCorrect)        
+            } else {
+                let loginCorrect = false
+                socket.emit('loginStatus', loginCorrect)
+            }
+        } else {
 
+        }
+        
+    })
+})
 
 app.get('/static', (req, res) => {
     res.render('index', {
         css: "style.css",
         title: "Productos",
-        js: "index.js"
+        js: "index.js",
     })
 })
 
@@ -186,6 +159,7 @@ app.get('/realtimeproducts', (req, res) => {
         css: "products.css",
         title: "Administrar productos",
         js: "realTimeProducts.js"
+        
     })
 })
 
@@ -212,25 +186,3 @@ app.get('/registrate', (req,res) => {
         js: 'registrate.js'
     })
 })
-
-//Storage
-/*
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'src/public/img')
-        },
-        filename: (req, file, cb) => {
-            cb(null, `${Date.now()}${file.originalname}`)
-        }
-    })
-const upload = multer({ storage: storage })
-*/
-
-/*
-app.post('/upload', upload.single('product'), (req, res) => {
-    console.log(req.file)
-    console.log(req.body)
-    res.status(200).send("Imagen subida")
-})
-//console.log(path.join(__dirname, '/public'))
-*/

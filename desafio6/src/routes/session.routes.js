@@ -38,4 +38,11 @@ sessionRouter.get('/logout', (req, res) => {
 
 })
 
+sessionRouter.get('/user', (req, res) => {
+    if (req.session.login) {
+        const user = req.session.login
+        res.status(200).send(user)
+    }
+})
+
 export default sessionRouter
