@@ -1,0 +1,36 @@
+<a href="/api/sessions/logout">Logout</a>
+<br>
+<div id="containerWelcome"></div>
+
+<br>
+<h1>Productos</h1>
+<br>
+<h3>Tabla de productos</h3>
+<div class="container">
+<table id="tableProducts" class="table">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Title</th>
+      <th scope="col">Description</th>
+      <th scope="col">Price</th>
+      <th scope="col">Thumbnail</th>
+      <th scope="col">Code</th>
+      <th scope="col">Stock</th>
+    </tr>
+  </thead>
+   <tbody>
+        {{#each products}}
+        <tr>
+            <td>{{this.id}}</td>
+            <td>{{this.title}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.price}}</td>
+            <td>{{this.thumbnail}}</td>
+            <td>{{this.code}}</td>
+            <td>{{this.stock}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+</div>
