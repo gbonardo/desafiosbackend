@@ -1,15 +1,13 @@
-
 const socket = io()
-const form = document.getElementById('idForm')
 
 socket.emit('realTimeProducts')
-
+/*
 socket.on('welcome', (welcomeUser) => {
     if (welcomeUser != null && undefined) {
         document.getElementById("containerWelcome").innerHTML = `Bienvenido ${welcomeUser}`
         } else {
     }
-})
+})*/
 
 socket.on('dataProducts', (products) => {
     const tbody = document.querySelector("#tableProducts tbody")
@@ -34,3 +32,10 @@ socket.on('dataProducts', (products) => {
     tbody.innerHTML = table
 })
 
+window.onload = async() =>{
+    response = await fetch('/api/sessions/user')
+    user = await response.json()
+    document.getElementById("bienvenido").innerHTML = `Bienvenido ${user.first_name}`
+    document.getElementById("email").innerHTML = `Email: ${user.email}`
+    document.getElementById("age").innerHTML = `Edad: ${user.age}`
+}
