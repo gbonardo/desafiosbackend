@@ -15,11 +15,20 @@ form.addEventListener('submit', async (e) =>{
             }
         })
         .then(response =>{
-            if (response.ok)
-            window.location.href = response.url
+            if (response.ok) {
+                window.location.href = '/static'
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Corrobore los datos ingresados.',
+                })
+            }
+            
         })
         .catch(error=>{
             throw(error)
+           
         })
 
     } catch (error) {

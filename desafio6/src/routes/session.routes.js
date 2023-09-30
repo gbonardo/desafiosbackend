@@ -8,8 +8,9 @@ sessionRouter.post('/login', async (req, res) => {
 
     try {
         if (req.session.login) {
-            res.status(200).send({ resultado: 'Login ya existente.' })
-            
+           // res.status(200).send({ resultado: 'Login ya existente.' })
+            res.redirect(301, '/static')
+            return 
         }         
         
         const user = await userModel.findOne({ email: email })
@@ -17,7 +18,8 @@ sessionRouter.post('/login', async (req, res) => {
         if (user) {
             if (user.password == password) {
                 req.session.login = true
-                res.redirect('/static', 200, { 'info': 'user' })
+                req.session.user = { first_name: user.first_name, email: user.email, age: user.age}
+                res.redirect(301, '/static')
                 
             } else {
                 res.status(401).send({ error: `Corrobore los datos ingresados.`, message: password })
@@ -36,14 +38,14 @@ sessionRouter.get('/logout', (req, res) => {
     if (req.session.login) {
         req.session.destroy()
     }
-    
-    res.redirect('/login', 200, { resultado: 'Usuario deslogueado' })
+    res.redirect(301, '/login')
+    //res.redirect('/login', 200, { resultado: 'Usuario deslogueado' })
 
 })
 
 sessionRouter.get('/user', (req, res) => {
-    if (req.session.login) {
-        const user = req.session.login
+    if (req.session.user) {
+        const user = req.session.user
         res.status(200).send(user)
     }
 })
