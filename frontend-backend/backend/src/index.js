@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import initializePassport from './config/passport.js';
+import { addLogger } from './config/logger.js'
 import session, { Cookie } from 'express-session';
 import MongoStore from 'connect-mongo';
 //import multer from 'multer';
@@ -59,6 +60,8 @@ app.use(session({
 initializePassport()
 app.use(passport.initialize())
 app.use(passport.session())
+
+app.use(addLogger)
 
 app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
@@ -200,3 +203,4 @@ app.get('/registrate', (req,res) => {
         js: 'registrate.js'
     })
 })
+
