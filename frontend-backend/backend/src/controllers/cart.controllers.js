@@ -48,7 +48,7 @@ export const postCartById = async (req, res) => {
                 res.status(404).send({ respuesta: 'Error en agregar producto Carrito', mensaje: 'Producto no encontrado' })
             }
         } else {
-            res.status(404).send({ respuesta: 'Error en agregar producto Carrito', mensaje: 'CCarrito no encontrado' })
+            res.status(404).send({ respuesta: 'Error en agregar producto Carrito', mensaje: 'Carrito no encontrado' })
         }
     } catch (error) {
         console.log(error)

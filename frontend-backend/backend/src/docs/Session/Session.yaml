@@ -1,0 +1,43 @@
+paths:
+  /api/sessions/login:
+    post:
+      summary: Inicio de sesión
+      tags:
+        - sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/requestBodies/Login'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Login'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+                          
+components:
+  schemas:
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+  requestBodies:
+    Login:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: test@gmail.com
+        password: test

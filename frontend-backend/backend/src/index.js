@@ -18,8 +18,10 @@ import messageRouter from './routes/messages.routes.js';
 import { messageModel } from './dao/models/messages.models.js';
 import { productModel } from './dao/models/products.models.js';
 import { userModel } from './dao/models/users.models.js';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUiExpress from 'swagger-ui-express';
 
-const whiteList = ['http://localhost:5173']
+const whiteList = ['http://localhost:5173', 'http://localhost:8080']
 
 const corsOptions = {
     origin: function(origin,callback){
@@ -28,7 +30,9 @@ const corsOptions = {
         } else {
             callback(new Error("Acceso denegado"))
         }
-    }
+    },
+    credentials: true,
+    //methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
 }
 
 const app = express()
@@ -38,6 +42,20 @@ const PORT = 8080
 mongoose.connect(process.env.MONGODB_URL)
     .then(() => console.log('BDD conectada'))
     .catch(() => console.log('Error en conexion a BDD'))
+
+const swaggerOptions = {
+    definition: {
+        openapi: '3.1.0',
+        info: {
+            title: "Documentación del curso Backend",
+            description: "API CoderHouse Backend"
+        }
+    },
+    apis: [`${__dirname}/docs/**/*.yaml`]
+}
+
+const specs = swaggerJSDoc(swaggerOptions)
+app.use('/apidocs', swaggerUiExpress.serve, swaggerUiExpress.setup(specs))
 
 //Middleware    
 app.use(express.json())

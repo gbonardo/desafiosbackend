@@ -1,0 +1,181 @@
+paths:
+  /api/products/:
+    get:
+      summary: Obtener todos los productos
+      tags:
+        - Products
+      responses:
+        '200':
+          description: Productos obtenidos correctamente
+          content: 
+            application/json:
+              schema:
+                type: array
+        '500':
+          description: Error interno del servidor
+    post:
+      summary: Crear un nuevo producto
+      tags:
+        - Products
+      parameters: 
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties: 
+              title: 
+                type: string
+              description: 
+                type: string
+              price: 
+                type: number
+              stock: 
+                type: number
+              category: 
+                type: string
+              status:
+                type: boolean
+              code:
+                type: string
+              thubnails:
+                type: array
+      responses:
+        '201':
+          description: Producto creado correctamente
+          content: 
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Error interno del servidor
+  /api/products/{id}:
+    get:
+      summary: Obtener producto por ID
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $type: String
+          description: ID del producto a buscar
+      responses:
+        '200':
+          description: Producto obtenido correctamente.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Product'
+    put:
+      summary: Actualizar producto
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $type: String
+          description: ID del producto a actualizar
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties: 
+              title: 
+                type: string
+              description: 
+                type: string
+              price: 
+                type: number
+              stock: 
+                type: number
+              category: 
+                type: string
+              status:
+                type: boolean
+              code:
+                type: string
+              thubnails:
+                type: array
+      responses:
+        '200':
+          description: Producto actualizado correctamente.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Error interno del servidor
+    delete:
+      summary: Eliminar un producto
+      tags:
+        - Products
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $type: String
+          description: ID del producto a aliminar
+      responses:
+        '200':
+          description: Producto eliminado correctamente.
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Error interno del servidor
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties: 
+        _id:
+          type: ObjectId
+          description: ID Autogenerado por MongoDB
+        title:
+          type: String
+          description: Título
+        description:
+          type: String
+          description: Descripción
+        price:
+          type: Number
+          descripcion: Precio
+        stock:
+          type: Number
+          descripcion: Stock
+        category:
+          type: String
+          descripcion: Categoria
+        status: 
+          type: Boolean
+          descripcion: Estado
+        code: 
+          type: String
+          descripcion: Código
+        thumbnails:
+          type: Array
+          descripcion: Imagen
+
+      example: 
+        _id: ObjectId('84hfdshfkh34287')
+        title: Monitor Philips
+        description: Negro
+        price: 20000
+        stock: 10
+        category: Monitor
+        status: true
+        code: MDNMMM
+        trumbnails: []
+
